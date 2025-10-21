@@ -1,0 +1,10 @@
+# editor/OS
+.DS_Store
+.idea
+.vscode
+
+# kubectl outputs
+.log
+
+# temporary
+tmp/
