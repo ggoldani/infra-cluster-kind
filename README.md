@@ -47,13 +47,18 @@ Before running the installation:
 
 ### Critical System Configuration
 
-⚠️ **REQUIRED:** Set inotify limits BEFORE creating the cluster:
+⚠️ **REQUIRED:** Set inotify limits permanently BEFORE creating the cluster:
 
 ```bash
+# Create permanent configuration file (persists across reboots)
+sudo tee /etc/sysctl.d/99-inotify-limits.conf > /dev/null <<EOF
+fs.inotify.max_user_watches = 524288
+fs.inotify.max_user_instances = 512
+EOF
+
+# Apply immediately (without reboot)
 sudo sysctl -w fs.inotify.max_user_watches=524288
 sudo sysctl -w fs.inotify.max_user_instances=512
-echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf
-echo "fs.inotify.max_user_instances = 512" | sudo tee -a /etc/sysctl.conf
 ```
 
 **Why this matters:** Default Debian inotify limits (64k watches) cause cluster-wide DNS failures after ~45 hours. Docker + Kind + multiple pods exhaust this limit. See `../SRE-laboratory/docs/runbooks/cluster-dns-failure-inotify-exhaustion.md` for technical details.
